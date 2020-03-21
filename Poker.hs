@@ -43,7 +43,7 @@ module Poker where
         -- get the highest suit card of the biggest pair
         let highCard = filter (\x -> reduceSingleCard x == maxPair) hand
         -- get all of the non pair cards
-        let nonPairCards = filter (\x -> reduceSingleCard x /= maxPair) hand
+        let nonPairCards = filter (\x -> reduceSingleCard x /= maxPair && (reduceSingleCard x) /= minimum [firstPairValue, secondPairValue]) hand
         if (firstPairValue /= (-1) && secondPairValue /= (-1)) then
             -- [ score, biggest pair, smallest pair, suit of the biggest pair ], [ list of non pair cards ]
             [[8, maxPair, minimum [firstPairValue, secondPairValue], suitChecker (maximum highCard)], nonPairCards]
