@@ -21,12 +21,24 @@ module Poker where
 			comparePoints handOne handTwo
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints handOne handTwo
-		--Checks for Straight Flush	
+		else if (isFourKind handOne !! 0 == 1) || (isFourKind handTwo !! 0 == 1) then	
+			comparePoints handOne handTwo
+		else if (isFullHouse handOne !! 0 == 1) || (isFullHouse handTwo !! 0 == 1) then
+			comparePoints handOne handTwo
+		else if (isFlush handOne !! 0 == 1) || (isFlush handTwo !! 0 == 1) then
+			comparePoints handOne handTwo	
 		else if (isStraight handOne !! 0 == 1) || (isStraight handTwo !! 0 == 1) then
 			comparePoints handOne handTwo
-		else[11]
+		else if (isThreeKind handOne !! 0 == 1) || (isThreeKind handTwo !! 0 == 1)then
+			comparePoints handOne handTwo
+		else if (isTwoPair handOne !! 0 == 1) || (isTwoPair handTwo !! 0 == 1) then
+			comparePoints handOne handTwo
+		else if (isPair handOne !! 0 == 1) || (isPair handTwo !! 0 == 1) then
+			comparePoints handOne handTwo
+		else comparePoints handOne handTwo
 		
-		--Checks for Straight
+
+
 		
 	
 	--Checks if it has a royal flush
@@ -62,6 +74,19 @@ module Poker where
 		if (temp !! 0) == (temp !! 3) || (temp !! 1) == (temp !! 4)then [3, temp !! 2]
 		else [11]
 		
+	--Checks if hand is Full House
+	isFullHouse lst = do
+		let temp = sort (modHand lst)
+		if (temp !! 0) == (temp !! 2) && (temp !! 3) == (temp !! 4) then [4, temp !! 0]
+		else if (temp !! 0) == (temp !! 1) && (temp !! 2) == (temp !! 4) then [4, temp !! 2]
+	
+	--Checks if hand is Flush
+	isFlush lst = do
+		if allSpades lst then [5,1]
+		else if allHearts lst then [5,2]
+		else if allDiamonds then [5,3]
+		else if allClubs then[5,4]
+		
 	--Checks if hand is Straight	
 	isStraight lst = do
 		let temp = sort (modHand lst)
@@ -69,11 +94,60 @@ module Poker where
 		if all(\x -> fst x == snd x) zipped then
 			[6, findHighestS zipped, suitChecker findHighestS zipped]
 		else [11]
-		
 	
-	findPairNum lst = do 
-		let temp = modHand lst
-		length temp - length (nub temp)
+	--Checks if hand is Three of a Kind
+	isThreeKind lst = do	
+		let temp = sort (modHand lst)
+		if (temp !! 0) == (temp !! 2) then [7, temp !! 0]
+		else if (temp !! 1) == (temp !! 3) then [7, temp !! 1]
+		else if (temp !! 2) == (temp !! 4) then [7, temp !! 2]
+		else [11]
+		
+	isTwoPair lst = do	
+		--find the 2 pairs 
+		let firstPairValue = findPair lst (-1)
+		let secondPairValue = findPair lst (-1)
+		--find the biggest pair
+		let maxPair = maximum [firstPairValue, secondPairValue]
+		--get the highest suit card of the biggest pair
+		let highCard = filter (\x -> reduceSingleCard x == maxPair) hand
+		--get all the non pair cards
+		let nonPairCards = filter(\x -> reduceSingleCard x/= maxPair &&(reduceSingleCard x) /= minimum [firstPairValue, secondPairValue]
+		if (firstPairValue /= (-1) && secondPairValue /= (-1)) then
+			--[score, biggest pair, smallest pair, suit of the biggest pair], [list of non pair cards]
+			[[8, maxPair, minimum[firstPairValue,secondPairValue],suitChecker(maximum highCard)],nonPairCards]
+		else
+			[[11]]
+		
+	--Check if hand is pair
+	isPair lst = do	
+		--find pair	
+		let pairValue = findPair lst (-1)
+		--find the biggest value of the pair
+		let highCard = filter (\x -> reduceSingleCard x == pairValue) hand
+		--list of all non pair cards
+		let nonPairCards = filter(\x -> reduceSingleCard x /= pairValue) hand
+		if (parValue /= (-1)) then	
+			--[ score, biggest pair value, suit of the pair], [list of non pair cards]
+			[[9, pairValue, suitChecker(maximum highCard)], nonPairCards]
+		else
+			[[11]]
+			
+	isHighest lst = do
+		[10, maximum lst]
+	
+	
+	findPair hand foundNum = do
+		let temp = modHand hand
+		fpair temp foundNum
+		
+	fpair []_ = -1
+	fpair (element:last) foundNum = do
+		if(element /= foundNum) && (elem element last) then	
+			element
+		else
+			fpair last foundNum
+
 	
 	--Finds the highest card in the hand
 	findHighestS lst = do
