@@ -19,7 +19,7 @@ module Poker where
 	calculatePoints handOne handTwo = do
 		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1)then
 			comparePoints handOne handTwo
-		else if (isStraightFlush handOne !! 0 == 1) || (isStraightFlush handTwo !! 0 == 1) then	
+		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints handOne handTwo
 		--Checks for Straight Flush	
 		else if (isStraight handOne !! 0 == 1) || (isStraight handTwo !! 0 == 1) then
@@ -49,11 +49,11 @@ module Poker where
 	isStraightFlush lst	= do
 		let temp = sort (modHand lst)
 		let zipped = zip [head temp..] temp
-		if all(\x -> fst x == snd x) zipped then
-			if allSpades lst then [2,1]
-			else if allHearts lst then [2,2]
-			else if allDiamonds then [2,3]
-			else if allClubs then[2,4]
+		if all(\x -> fst x == snd x) zipped then 
+			if allSpades lst [2,findHighestS zipped,1]
+			else if allHearts lst then [2,findHighestS zipped,2]
+			else if allDiamonds then [2,findHighestS zipped,3]
+			else if allClubs then[2,findHighestS zipped,4]
 		else [11]
 		
 	isStraight lst = do
