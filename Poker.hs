@@ -55,11 +55,20 @@ module Poker where
 			else if allDiamonds then [2,findHighestS zipped,3]
 			else if allClubs then[2,findHighestS zipped,4]
 		else [11]
+	
+	--Checks if hand is Four of a Kind
+	isFourKind lst = do
+		let temp = sort (modHand lst)
+		if (temp !! 0) == (temp !! 3) || (temp !! 1) == (temp !! 4)then [3, temp !! 2]
+		else [11]
 		
+	--Checks if hand is Straight	
 	isStraight lst = do
 		let temp = sort (modHand lst)
 		let zipped = zip [head temp..] temp
 		if all(\x -> fst x == snd x) zipped then
+			[6, findHighestS zipped, suitChecker findHighestS zipped]
+		else [11]
 		
 	
 	findPairNum lst = do 
