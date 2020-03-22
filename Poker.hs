@@ -27,16 +27,17 @@ module Poker where
 			--The higher triple wins 
 		else if (handO !! 0 == 4 && handT !! 0 == 4) then
 			if(handO !! 1) < (handT !! 1) then 2 
-			else then 1
+			else 1
 			
 		--Flush tie break
 			--The highest value card with the highest suit wins 
 		else if (handO !! 0 == 5 && handT !! 0 == 5) then
-			if(handO !! 1) > (handT !! 1) then 1 
-			else if (handO !! 1) < (handT !! 1) then 2
-			else 
-				if(handO !! 2) > (handT !! 2) then 2
-				else 1
+			let temp = compareHighestValue (drop 2 handO) (drop 2 handT)
+			if temp == 1 then 1
+			else if temp == 2 then 2
+			else
+				if (handO !! 1) < (handT !! 1) then 1
+				else 2
 		
 		--Straight tie break
 			--Highest value card with highest suit wins 
@@ -54,7 +55,14 @@ module Poker where
 			else 2
 			
 		--High Card tie break	
-		else 
+		else
+			let temp = compareHighestValue (drop 2 handO) (drop 2 handT)
+			if temp == 1 then 1
+			else if temp == 2 then 2
+			else
+				if (handO !! 1) < (handT !! 1) then 1 
+				else 2
+				
 		
 		
 	
@@ -125,11 +133,12 @@ module Poker where
 		else if (temp !! 0) == (temp !! 1) && (temp !! 2) == (temp !! 4) then [4, temp !! 2]
 	
 	--Checks if hand is Flush
+		
 	isFlush lst = do
-		if allSpades lst then [5, maximum(modHand lst),1]
-		else if allHearts lst then [5,maximum(modHand lst),2]
-		else if allDiamonds then [5,maximum(modHand lst),3]
-		else if allClubs then[5,maximum(modHand lst),4]
+		if allSpades lst then 5:1:lst
+		else if allHearts lst then 5:2:lst
+		else if allDiamonds then 5:3:lst
+		else if allClubs then 5:4:lst
 		
 	--Checks if hand is Straight	
 	isStraight lst = do
@@ -176,13 +185,27 @@ module Poker where
 			[[9, pairValue, suitChecker(maximum highCard)], nonPairCards]
 		else
 			[[11]]
+			
 	--Hand is high card 		
 	isHighest lst = do
-		10:lst
+		let temp = suitChecker ((sort lst) !! 4)
+		10:temp:lst
 	
 	
 	
-	
+	--Find the highest unique value
+		--return winning hand, all equal return -1 
+	compareHighestValue [] []= -1 
+	compareHighestValue handOne handTwo = do
+		one = sort (modHand handOne)
+		two = sort (modHand handTwo)
+		
+		if (one !! 0 == two !! 0) then
+			compareHighestValue (tail one) (tail two)
+		else if (one !! 0 > two !! 0) then 1
+		else 2
+		
+		
 	
 	findPair hand foundNum = do
 		let temp = modHand hand
