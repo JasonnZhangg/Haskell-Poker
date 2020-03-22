@@ -22,9 +22,40 @@ module Poker where
 			else 
 				if (handO !! 2) > (handT !! 2) then 2
 				else 1
+				
+		--Full House tie break
+			--The higher triple wins 
 		else if (handO !! 0 == 4 && handT !! 0 == 4) then
-			if(handO !! 1) < (handT !! 2)
-
+			if(handO !! 1) < (handT !! 1) then 2 
+			else then 1
+			
+		--Flush tie break
+			--The highest value card with the highest suit wins 
+		else if (handO !! 0 == 5 && handT !! 0 == 5) then
+			if(handO !! 1) > (handT !! 1) then 1 
+			else if (handO !! 1) < (handT !! 1) then 2
+			else 
+				if(handO !! 2) > (handT !! 2) then 2
+				else 1
+		
+		--Straight tie break
+			--Highest value card with highest suit wins 
+		else if (handO !! 0 == 6 && handT !! 0 == 6) then
+			if(handO !! 1) > (handT !! 1) then 1 
+			else if (handO !! 1) < (handT !! 1) then 2
+			else 
+				if(handO !! 2) > (handT !! 2) then 2
+				else 1 
+			
+		--Three of a Kind tie break 	
+			--Highest value triple wins
+		else if (handO !! 0 == 7 && handT !! 0 == 7) then
+			if(handO !! 1) > (handT !! 1) then 1 
+			else 2
+			
+		--High Card tie break	
+		else 
+		
 		
 	
 	--Function to calculate points for each hand 
@@ -95,10 +126,10 @@ module Poker where
 	
 	--Checks if hand is Flush
 	isFlush lst = do
-		if allSpades lst then [5,1]
-		else if allHearts lst then [5,2]
-		else if allDiamonds then [5,3]
-		else if allClubs then[5,4]
+		if allSpades lst then [5, maximum(modHand lst),1]
+		else if allHearts lst then [5,maximum(modHand lst),2]
+		else if allDiamonds then [5,maximum(modHand lst),3]
+		else if allClubs then[5,maximum(modHand lst),4]
 		
 	--Checks if hand is Straight	
 	isStraight lst = do
@@ -145,7 +176,7 @@ module Poker where
 			[[9, pairValue, suitChecker(maximum highCard)], nonPairCards]
 		else
 			[[11]]
-			
+	--Hand is high card 		
 	isHighest lst = do
 		10:lst
 	
@@ -164,7 +195,7 @@ module Poker where
 		else
 			fpair last foundNum
 
-	
+
 	--Finds the highest card in the hand
 	findHighestS lst = do
 		let temp = modHand lst 
