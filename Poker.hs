@@ -1,19 +1,37 @@
 module Poker where 
 	import Data.List
-	
+
 	deal cards = do
 	--Seperate the hands 
 		let handOne = [snd x | x <- (zip [1..10] cards), odd(fst x)]
 		let handTwo = [snd x | x <- (zip [1..10] cards), even(fst x)]
 		
 		let winner = calculatePoints handOne handTwo
-		1 
+		let stringifyList = if (winner == 1) then 
+								stringifyHand handOne []
+							else 
+								stringifyHand handTwo []
+		stringifyList
+
+	stringifyHand [] stringList = stringList
+	stringifyHand (card:hand) stringList = do
+		let num = show (reduceSingleCard card)
+		let suit = suitChecker card
+		if suit == 1 then 
+			stringifyHand hand (stringList ++ [num ++ "S"])
+		else if suit == 2 then  
+			stringifyHand hand (stringList ++ [num ++ "H"])
+		else if suit == 3 then
+			stringifyHand hand (stringList ++ [num ++ "D"])
+		else
+			stringifyHand hand (stringList ++ [num ++ "C"])
+
 
 	--Compare hands 
 	comparePoints handO handT = do	
 		--If one of the hands first index is 11 that means the other hand has the higher poker hand
-		if (handO !! 0 == 11) then 2
-		else if (handT !! 0 == 11) then 1
+		if (handO !! 0 /= 11) then 1
+		else if (handT !! 0 /= 11) then 2
 		
 		--Tie Breaking
 		--Royal Flush tie break
@@ -60,9 +78,21 @@ module Poker where
 		--Three of a Kind tie break 	
 			--Highest value triple wins
 		else if (handO !! 0 == 7 && handT !! 0 == 7) then
-			if(handO !! 1) > (handT !! 1) then 1 
+			if (handO !! 1) > (handT !! 1) then 1 
 			else 2
-			
+		-- 2 pairs
+		else if (handO !! 0 == 8 && handT !! 0 == 8) then
+			if pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT)) /= (-1) then
+				pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT))
+			else if (handO !! 4 < handT !! 4) then 1
+			else 2
+		-- pair
+		else if (handO !! 0 == 9 && handT !! 0 == 9) then
+			if pairTieBreak (drop 1 (take 5 handO)) (drop 1 (take 5 handT)) /= (-1) then
+				pairTieBreak (drop 1 (take 5 handO)) (drop 1 (take 5 handT))
+			else if (handO !! 5  < handT !! 5) then 1
+			else 2
+		
 		--High Card tie break
 		--The highest value card with the highest suit wins 
 			--index 1 is highest card suit, index 2-7 is the hand 
@@ -74,11 +104,17 @@ module Poker where
 				if (handO !! 1) < (handT !! 1) then 1 
 				else 2
 	
+	pairTieBreak [] [] = (-1)
+	pairTieBreak (one:oneLast) (two:twoLast) = do 
+		if (one > two) then 1
+		else if (two > one) then 2
+		else pairTieBreak oneLast twoLast
+	
 	--Function to calculate points for each hand 
 		--Checks the type of poker hand of handOne and handTwo
 		--If any match, compare the two hands 
 	calculatePoints handOne handTwo = do
-		if (isRoyalFlush (handOne !! 0) == 1) || (isRoyalFlush (handTwo !! 0) == 1)then
+		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1)then
 			comparePoints (isRoyalFlush handOne) (isRoyalFlush handTwo)
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints (isStraightFlush handOne) (isStraightFlush handTwo)
@@ -97,7 +133,6 @@ module Poker where
 		else if (isPair handOne !! 0 == 9) || (isPair handTwo !! 0 == 9) then
 			comparePoints (isPair handOne) (isPair handTwo)
 		else comparePoints (isHighest handOne) (isHighest handTwo)
-
 
 	--Checks if it has a royal flush
 		--Checks the suit, then card values
@@ -136,9 +171,10 @@ module Poker where
 		--Returns [hand type, value of triple]
 	isFullHouse lst = do
 		let temp = sort (modHand lst True)
-		if (temp !! 0) == (temp !! 2) && (temp !! 3) == (temp !! 4) then [4, temp !! 0]
-		else if (temp !! 0) == (temp !! 1) && (temp !! 2) == (temp !! 4) then [4, temp !! 2]
-		else [11]
+		if (temp !! 0) == (temp !! 2) && (temp !! 3) == (temp !! 4) || (temp !! 0) == (temp !! 1) && (temp !! 2) == (temp !! 4) then 
+			[4, temp !! 2]
+		else 
+			[11]
 		
 	--Checks if hand is Flush
 		--Check suit
@@ -153,9 +189,7 @@ module Poker where
 		--Return [hand type, highest card suit, lst]
 	isStraight lst = do
 		let temp = sort (modHand lst False)
-		let min = head temp
-		let max = temp !! 4
-		if (min + 4 == max) then [6, suitChecker (maximum lst)] ++ lst
+		if ((head temp) + 4 == temp !! 4) then [6, suitChecker (maximum lst)] ++ lst
 		else [11]
 	
 	--Checks if hand is Three of a Kind
@@ -163,9 +197,7 @@ module Poker where
 		--Return [hand type, triple value]
 	isThreeKind lst = do	
 		let temp = sort (modHand lst True)
-		if (temp !! 0) == (temp !! 2) then [7, temp !! 0]
-		else if (temp !! 1) == (temp !! 3) then [7, temp !! 1]
-		else if (temp !! 2) == (temp !! 4) then [7, temp !! 2]
+		if (temp !! 0) == (temp !! 2) || (temp !! 1) == (temp !! 3) || (temp !! 2) == (temp !! 4) then [7, temp !! 2]
 		else [11]
 		
 	isTwoPair hand = do	
@@ -180,7 +212,7 @@ module Poker where
 		let nonPairCards = filter(\x -> reduceSingleCard x /= firstPairValue && reduceSingleCard x /= secondPairValue) hand
 		if (firstPairValue /= (-1) && secondPairValue /= (-1)) then
 			--[score, biggest pair, smallest pair, suit of the biggest pair] ++ [list of non pair cards]
-			[8, maxPair, minimum [firstPairValue,secondPairValue], suitChecker (maximum highCard)] ++ nonPairCards
+			[8, maxPair, minimum [firstPairValue,secondPairValue]] ++ nonPairCards ++ [suitChecker (maximum highCard)]
 		else
 			[11]
 		
@@ -194,7 +226,7 @@ module Poker where
 		let nonPairCards = filter(\x -> reduceSingleCard x /= pairValue) hand
 		if (pairValue /= (-1)) then	
 			--[ score, biggest pair value, suit of the pair] ++ [list of non pair cards]
-			[9, pairValue, suitChecker(maximum highCard)] ++ nonPairCards
+			[9, pairValue] ++ nonPairCards ++ [suitChecker(maximum highCard)]
 		else
 			[11]
 	--Hand is high card 	
@@ -220,7 +252,7 @@ module Poker where
 		let temp = modHand hand True
 		fpair temp foundNum
 		
-	fpair []_ = -1
+	fpair [] _ = -1
 	fpair (element:last) foundNum = do
 		if(element /= foundNum) && (elem element last) then	
 			element
@@ -231,12 +263,6 @@ module Poker where
 	findHighestS lst isHighAce = do
 		let temp = modHand lst isHighAce
 		maximum temp
-		
-	--Checks if the hand has same suit
-	allClubs lst = all (\x -> (suitChecker x) == 4) lst
-	allDiamonds lst = all (\x -> (suitChecker x) == 3) lst
-	allHearts lst = all(\x -> (suitChecker x) == 2) lst
-	allSpades lst = all(\x -> (suitChecker x) == 1) lst
 	
 	--Checks if card is certain suit
 	suitChecker x = do
