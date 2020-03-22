@@ -7,7 +7,7 @@ module Poker where
 		let handTwo = handTwof cards
 		
 		let winner = calculatePoints handOne handTwo
-		winner 
+		1 
 
 	--Compare hands 
 	comparePoints handO handT = do	
@@ -16,7 +16,6 @@ module Poker where
 		else if (handT !! 0 == 11) then 1
 		
 		--Tie Breaking
-		
 		--Royal Flush tie break
 			--Check suit. The hand with the lower suit value has a better suit and wins 
 		else if (handO !! 0 == 1 && handT !! 0 == 1) then
@@ -76,6 +75,7 @@ module Poker where
 			else
 				if (handO !! 1) < (handT !! 1) then 1 
 				else 2
+		
 				
 		
 		
@@ -112,18 +112,22 @@ module Poker where
 		--Checks the suit, then card values
 		--Return [hand type, suit]
 	isRoyalFlush lst = do
-		if allSpades lst then 
+		if allSpades lst then
 			let temp = modHand lst 	
 			if all (\x -> x == 1|| x == 10 || x == 11 || x == 12 || x == 0) temp then [1,1]
+			else [11]
 		else if allHearts lst then
 			let temp = modHand lst 	
 			if all (\x -> x == 1|| x == 10 || x == 11 || x == 12 || x == 0) temp then [1,2]
+			else [11]
 		else if allDiamonds lst then
 			let temp = modHand lst 	
 			if all (\x -> x == 1|| x == 10 || x == 11 || x == 12 || x == 0) temp then [1,3]
+			else [11]
 		else if allClubs lst then
 			let temp = modHand lst 	
 			if all (\x -> x == 1|| x == 10 || x == 11 || x == 12 || x == 0) temp then [1,4]
+			else [11]
 		else [11]
 		
 	--Checks if hand is straight flush	
@@ -133,28 +137,31 @@ module Poker where
 		let temp = sort (modHand lst)
 		let zipped = zip [head temp..] temp
 		if all(\x -> fst x == snd x) zipped then 
-			if allSpades lst [2,findHighestS zipped,1]
+			if allSpades lst then [2,findHighestS zipped,1]
 			else if allHearts lst then [2,findHighestS zipped,2]
 			else if allDiamonds then [2,findHighestS zipped,3]
 			else if allClubs then[2,findHighestS zipped,4]
+			else [11]
 		else [11]
 	
+
 	--Checks if hand is Four of a Kind
 		--Checks a sorted hand if 1st and 3rd or 2nd and 5th cards are equal meaning there is 4 of the same card
 		--returns[hand type, value of four of a kind]
 	isFourKind lst = do
 		let temp = sort (modHand lst)
-		if (temp !! 0) == (temp !! 3) || (temp !! 1) == (temp !! 4)then [3, temp !! 2]
-		else [11]
-		
+		if (temp !! 0) == (temp !! 3) || (temp !! 1) == (temp !! 4) then [3, temp !! 2]
+		else [11]	
+	
 	--Checks if hand is Full House
-		--Checks if there is a triple 
+		--Checks if there is a triple and double
 		--Returns [hand type, value of triple]
 	isFullHouse lst = do
 		let temp = sort (modHand lst)
 		if (temp !! 0) == (temp !! 2) && (temp !! 3) == (temp !! 4) then [4, temp !! 0]
 		else if (temp !! 0) == (temp !! 1) && (temp !! 2) == (temp !! 4) then [4, temp !! 2]
-	
+		else [11]
+		
 	--Checks if hand is Flush
 		--Check suit
 		--Return [hand type, suit, rest of hand]
@@ -163,6 +170,7 @@ module Poker where
 		else if allHearts lst then 5:2:lst
 		else if allDiamonds then 5:3:lst
 		else if allClubs then 5:4:lst
+		else [11]
 		
 	--Checks if hand is Straight	
 		--Check if hand is consecutive
@@ -213,18 +221,19 @@ module Poker where
 			[[9, pairValue, suitChecker(maximum highCard)], nonPairCards]
 		else
 			[[11]]
-			
 	--Hand is high card 	
 		--Returns [hand type, suit of highest card, hand]
 	isHighest lst = do
 		let temp = suitChecker ((sort lst) !! 4)
-		10:temp:lst
+		10:temp:lst	
+	
+	
 	
 	
 	
 	--Find the highest unique value
 		--return winning hand, if all cards equal return -1 
-	compareHighestValue [] []= -1 
+	compareHighestValue [] [] = -1 
 	compareHighestValue handOne handTwo = do
 		one = sort (modHand handOne)
 		two = sort (modHand handTwo)
@@ -234,8 +243,7 @@ module Poker where
 		else if (one !! 0 > two !! 0) then 1
 		else 2
 		
-		
-	
+
 	findPair hand foundNum = do
 		let temp = modHand hand
 		fpair temp foundNum
