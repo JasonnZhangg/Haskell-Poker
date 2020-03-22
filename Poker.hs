@@ -11,6 +11,9 @@ module Poker where
 
 	--Compare points
 	comparePoints handO handT = do	
+		if (handOne !! 0 == 11) then 2
+		else if (handTwo !! 0 == 11) then 1
+		
 
 		
 	
@@ -18,24 +21,24 @@ module Poker where
 		--The lower the points, the better the hand 
 	calculatePoints handOne handTwo = do
 		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1)then
-			comparePoints handOne handTwo
+			comparePoints (isRoyalFlush handOne) (isRoyalFlush handTwo)
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
-			comparePoints handOne handTwo
+			comparePoints (isStraightFlush handOne) (isStraightFlush handTwo)
 		else if (isFourKind handOne !! 0 == 1) || (isFourKind handTwo !! 0 == 1) then	
-			comparePoints handOne handTwo
+			comparePoints (isFourKind handOne)  (isFourKind handTwo)
 		else if (isFullHouse handOne !! 0 == 1) || (isFullHouse handTwo !! 0 == 1) then
-			comparePoints handOne handTwo
+			comparePoints (isFullHouse handOne) (isFullHouse handTwo)
 		else if (isFlush handOne !! 0 == 1) || (isFlush handTwo !! 0 == 1) then
-			comparePoints handOne handTwo	
+			comparePoints (isFlush handOne) (isFlush handTwo)	
 		else if (isStraight handOne !! 0 == 1) || (isStraight handTwo !! 0 == 1) then
-			comparePoints handOne handTwo
+			comparePoints (isStraight handOne) (isStraight handTwo)
 		else if (isThreeKind handOne !! 0 == 1) || (isThreeKind handTwo !! 0 == 1)then
-			comparePoints handOne handTwo
+			comparePoints (isThreeKind handOne) (isThreeKind handTwo)
 		else if (isTwoPair handOne !! 0 == 1) || (isTwoPair handTwo !! 0 == 1) then
-			comparePoints handOne handTwo
+			comparePoints (isTwoPair handOne) (isTwoPair handTwo)
 		else if (isPair handOne !! 0 == 1) || (isPair handTwo !! 0 == 1) then
-			comparePoints handOne handTwo
-		else comparePoints handOne handTwo
+			comparePoints (isPair handOne) (isPair handTwo)
+		else comparePoints (isHighest handOne) (isHighest handTwo)
 		
 
 
@@ -134,7 +137,10 @@ module Poker where
 			[[11]]
 			
 	isHighest lst = do
-		[10, maximum lst]
+		10:lst
+	
+	
+	
 	
 	
 	findPair hand foundNum = do

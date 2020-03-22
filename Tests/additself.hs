@@ -24,4 +24,7 @@ module AddSelf where
 				if (handO !! 2) > (handT !! 2) then "handO win"
 				else if (handO !! 2) < (handT !! 2) then "handT win"
 				else "tie"
+				
+	theNumber x = do
+		addSelf (findHighest x) 5 
 		
