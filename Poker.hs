@@ -11,9 +11,19 @@ module Poker where
 
 	--Compare points
 	comparePoints handO handT = do	
-		if (handOne !! 0 == 11) then 2
-		else if (handTwo !! 0 == 11) then 1
-		
+		if (handO !! 0 == 11) then 2
+		else if (handT !! 0 == 11) then 1
+		else if (handO == 1 && handT == 1) then
+			if (handO !! 1) > (handT !! 1) then 2
+			else 1
+		else if (handO !! 0 == 2 && handT !! 0 == 2) then
+			if (handO !! 1) > (handT !! 1) then 1
+			else if (handO !! 1) < (handT !! 1) then 2
+			else 
+				if (handO !! 2) > (handT !! 2) then 2
+				else 1
+		else if (handO !! 0 == 4 && handT !! 0 == 4) then
+			if(handO !! 1) < (handT !! 2)
 
 		
 	
