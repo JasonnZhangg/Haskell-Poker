@@ -57,6 +57,12 @@ module Poker where
 				if (handO !! 2) > (handT !! 2) then 2
 				else 1
 				
+		--Four of a kind Tie break
+			--the higher value four of a kind wins 
+		else if (handO !! 0 == 3 && handT !! 0 == 3)then
+			if(handO !! 1) < (handT !! 1) then 2 
+			else 1 
+				
 		--Full House tie break
 			--The higher triple wins, check suit
 		else if (handO !! 0 == 4 && handT !! 0 == 4) then
