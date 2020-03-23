@@ -11,6 +11,8 @@ module Poker where
 		print (stringifyHand handTwo [])
 
 		let winner = calculatePoints handOne handTwo
+		putStrLn (">>> hand "  ++ (show winner))
+		
 		let stringifyList = if (winner == 1) then 
 								stringifyHand handOne []
 							else 
@@ -21,7 +23,7 @@ module Poker where
 
 	stringifyHand [] stringList = stringList
 	stringifyHand (card:hand) stringList = do
-		let num = show (reduceSingleCard card)
+		let num = show (reduceSingleCard card False)
 		let suit = suitChecker card
 		if suit == 1 then 
 			stringifyHand hand (stringList ++ [num ++ "S"])
@@ -36,8 +38,8 @@ module Poker where
 	--Compare hands 
 	comparePoints handO handT = do	
 		--If one of the hands first index is 11 that means the other hand has the higher poker hand
-		if (handO !! 0 /= 11) then 1
-		else if (handT !! 0 /= 11) then 2
+		if (handO !! 0 < handT !! 0) then 1
+		else if (handT !! 0 < handO !! 0) then 2
 		
 		--Tie Breaking
 		--Royal Flush tie break
@@ -87,17 +89,22 @@ module Poker where
 			if (handO !! 1) > (handT !! 1) then 1 
 			else 2
 		-- 2 pairs
+		-- [8, maxPair, minimum [firstPairValue,secondPairValue]] ++ nonPairCards ++ [suitChecker (maximum highCard)]
 		else if (handO !! 0 == 8 && handT !! 0 == 8) then
-			if pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT)) /= (-1) then
+			if pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT)) /= (-1) then 
 				pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT))
-			else if (handO !! 4 < handT !! 4) then 1
-			else 2
+			else 
+				if (handO !! 4) < (handT !! 4) then 1
+				else 2
+			
 		-- pair
+		-- [9, pairValue] ++ nonPairCards ++ [suitChecker(maximum highCard)]
 		else if (handO !! 0 == 9 && handT !! 0 == 9) then
-			if pairTieBreak (drop 1 (take 5 handO)) (drop 1 (take 5 handT)) /= (-1) then
-				pairTieBreak (drop 1 (take 5 handO)) (drop 1 (take 5 handT))
-			else if (handO !! 5  < handT !! 5) then 1
-			else 2
+			if pairTieBreak  (drop 2 (take 5 handO))  (drop 2 (take 5 handT)) /= (-1) then
+				pairTieBreak (drop 2 (take 5 handO)) (drop 2 (take 5 handT))
+			else 
+				if (handO !! 5) < (handT !! 5) then 1
+				else 2
 		
 		--High Card tie break
 		--The highest value card with the highest suit wins 
@@ -122,23 +129,33 @@ module Poker where
 	calculatePoints handOne handTwo = do
 		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1)then
 			comparePoints (isRoyalFlush handOne) (isRoyalFlush handTwo)
+			-- (isRoyalFlush handOne) ++ [1000] ++ (isRoyalFlush handTwo)
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints (isStraightFlush handOne) (isStraightFlush handTwo)
+			-- (isStraightFlush handOne) ++ [1000] ++ (isStraightFlush handTwo)
 		else if (isFourKind handOne !! 0 == 3) || (isFourKind handTwo !! 0 == 3) then	
-			comparePoints (isFourKind handOne)  (isFourKind handTwo)
+			comparePoints (isFourKind handOne) (isFourKind handTwo)
+			-- (isFourKind handOne) ++ [1000] ++  (isFourKind handTwo)
 		else if (isFullHouse handOne !! 0 == 4) || (isFullHouse handTwo !! 0 == 4) then
 			comparePoints (isFullHouse handOne) (isFullHouse handTwo)
+			-- (isFullHouse handOne) ++ [1000] ++ (isFullHouse handTwo)
 		else if (isFlush handOne !! 0 == 5) || (isFlush handTwo !! 0 == 5) then
-			comparePoints (isFlush handOne) (isFlush handTwo)	
+			comparePoints (isFlush handOne) (isFlush handTwo)
+			-- (isFlush handOne) ++ [1000] ++ (isFlush handTwo)
 		else if (isStraight handOne !! 0 == 6) || (isStraight handTwo !! 0 == 6) then
 			comparePoints (isStraight handOne) (isStraight handTwo)
+			-- (isStraight handOne) ++ [1000] ++ (isStraight handTwo)
 		else if (isThreeKind handOne !! 0 == 7) || (isThreeKind handTwo !! 0 == 7)then
 			comparePoints (isThreeKind handOne) (isThreeKind handTwo)
+			-- (isThreeKind handOne) ++ [1000] ++ (isThreeKind handTwo)
 		else if (isTwoPair handOne !! 0 == 8) || (isTwoPair handTwo !! 0 == 8) then
 			comparePoints (isTwoPair handOne) (isTwoPair handTwo)
+			-- (isTwoPair handOne) ++ [1000] ++ (isTwoPair handTwo)
 		else if (isPair handOne !! 0 == 9) || (isPair handTwo !! 0 == 9) then
 			comparePoints (isPair handOne) (isPair handTwo)
+			-- (isPair handOne) ++ [1000] ++ (isPair handTwo)
 		else comparePoints (isHighest handOne) (isHighest handTwo)
+		-- else (isHighest handOne) ++ [1000] ++ (isHighest handTwo)
 
 	--Checks if it has a royal flush
 		--Checks the suit, then card values
@@ -211,12 +228,12 @@ module Poker where
 		--find the biggest pair
 		let maxPair = maximum [firstPairValue, secondPairValue]
 		--get the highest suit card of the biggest pair
-		let highCard = filter (\x -> reduceSingleCard x == maxPair) hand
+		let highCard = filter (\x -> (reduceSingleCard x True) == maxPair) hand
 		--get all the non pair cards
-		let nonPairCards = filter(\x -> reduceSingleCard x /= firstPairValue && reduceSingleCard x /= secondPairValue) hand
-		if (firstPairValue /= (-1) && secondPairValue /= (-1)) then
+		let nonPairCards = filter(\x -> (reduceSingleCard x True) /= firstPairValue && (reduceSingleCard x True) /= secondPairValue) hand
+		if (length (nub (modHand hand False)) == 3) then
 			--[score, biggest pair, smallest pair, suit of the biggest pair] ++ [list of non pair cards]
-			[8, maxPair, minimum [firstPairValue,secondPairValue]] ++ nonPairCards ++ [suitChecker (maximum highCard)]
+			[8, maxPair, minimum [firstPairValue, secondPairValue]] ++ (reverse (sort (modHand nonPairCards True))) ++  [suitChecker (maximum highCard)]
 		else
 			[11]
 		
@@ -225,19 +242,19 @@ module Poker where
 		--find pair	
 		let pairValue = findPair hand (-1)
 		--find the biggest value of the pair
-		let highCard = filter (\x -> reduceSingleCard x == pairValue) hand
+		let highCard = filter (\x -> (reduceSingleCard x True) == pairValue) hand
 		--list of all non pair cards
-		let nonPairCards = filter(\x -> reduceSingleCard x /= pairValue) hand
-		if (pairValue /= (-1)) then	
+		let nonPairCards = filter(\x -> (reduceSingleCard x True) /= pairValue) hand
+		if (length (nub (modHand hand True)) == 4) then	
 			--[ score, biggest pair value, suit of the pair] ++ [list of non pair cards]
-			[9, pairValue] ++ nonPairCards ++ [suitChecker(maximum highCard)]
+			[9, pairValue] ++ (reverse (sort (modHand nonPairCards True))) ++ [suitChecker (maximum highCard)]
 		else
 			[11]
 	--Hand is high card 	
 		--Returns [hand type, suit of highest card, hand]
 	isHighest lst = do
-		let temp = suitChecker ((sort lst) !! 4)
-		10:temp:lst	
+		let suit = suitChecker ((sort lst) !! 4)
+		10:suit:lst	
 	
 	--Find the highest unique value
 		--return winning hand, if all cards equal return -1 
@@ -248,17 +265,17 @@ module Poker where
 		
 		if (one !! 0 == two !! 0) then
 			compareHighestValue (tail one) (tail two) isHighAce
-		else if (one !! 0 > two !! 0) then 1
-		else 2
+		else 
+			if (one !! 0 > two !! 0) then 1
+			else 2
 		
-
 	findPair hand foundNum = do
 		let temp = modHand hand True
 		fpair temp foundNum
 		
 	fpair [] _ = -1
 	fpair (element:last) foundNum = do
-		if(element /= foundNum) && (elem element last) then	
+		if (element /= foundNum) && (elem element last) then	
 			element
 		else
 			fpair last foundNum
@@ -270,9 +287,9 @@ module Poker where
 	
 	--Checks if card is certain suit
 	suitChecker x = do
-		if (x > 0 && x < 14) then 4
-		else if (x > 13 && x < 27) then 3
-		else if (x > 26 && x < 40) then 2
+		if (x >= 1 && x <= 13) then 4
+		else if (x >= 14 && x <= 26) then 3
+		else if (x >= 27 && x <= 39) then 2
 		else 1
 		
 	checkHandSuit hand = do 
@@ -296,7 +313,9 @@ module Poker where
 			(mod x 13):modHand xs isHighAce
 			
 	--mod a single card
-	reduceSingleCard card = do	
+	reduceSingleCard card isHighAce = do	
 		if (mod card 13) == 0 then	
 			13
+		else if (isHighAce) && (mod card 13) == 1 then
+			14 
 		else mod card 13
