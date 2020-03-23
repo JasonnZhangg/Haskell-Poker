@@ -6,12 +6,18 @@ module Poker where
 		let handOne = [snd x | x <- (zip [1..10] cards), odd(fst x)]
 		let handTwo = [snd x | x <- (zip [1..10] cards), even(fst x)]
 		
+		-- for debugging
+		print (stringifyHand handOne [])
+		print (stringifyHand handTwo [])
+
 		let winner = calculatePoints handOne handTwo
 		let stringifyList = if (winner == 1) then 
 								stringifyHand handOne []
 							else 
 								stringifyHand handTwo []
-		stringifyList
+		-- for debugging
+		print stringifyList
+		-- stringifyList
 
 	stringifyHand [] stringList = stringList
 	stringifyHand (card:hand) stringList = do
@@ -37,8 +43,8 @@ module Poker where
 		--Royal Flush tie break
 			--Check suit. The hand with the lower suit value has a better suit and wins 
 		else if (handO !! 0 == 1 && handT !! 0 == 1) then
-			if (handO !! 1) > (handT !! 1) then 2
-			else 1
+			if (handO !! 1) < (handT !! 1) then 1
+			else 2
 			
 		--Straight Flush tie break
 			--Check highest value, if tie, check suit 
@@ -143,7 +149,6 @@ module Poker where
 		if (suit /= -1) && temp == [10,11,12,13,14] then [1, suit]
 		else [11]
 
-		
 	--Checks if hand is straight flush	
 		--Checks everything is consecutive, then checks suit
 		--Returns [hand type, highest card value, suit]
@@ -157,7 +162,6 @@ module Poker where
 		else 
 			[11]
 	
-
 	--Checks if hand is Four of a Kind
 		--Checks a sorted hand if 1st and 3rd or 2nd and 5th cards are equal meaning there is 4 of the same card
 		--returns[hand type, value of four of a kind]
@@ -203,7 +207,7 @@ module Poker where
 	isTwoPair hand = do	
 		--find the 2 pairs 
 		let firstPairValue = findPair hand (-1)
-		let secondPairValue = findPair hand (-1)
+		let secondPairValue = findPair hand firstPairValue
 		--find the biggest pair
 		let maxPair = maximum [firstPairValue, secondPairValue]
 		--get the highest suit card of the biggest pair
