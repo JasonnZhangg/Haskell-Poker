@@ -84,7 +84,7 @@ module Poker where
 		--Checks the type of poker hand of handOne and handTwo
 		--If any match, compare the two hands 
 	calculatePoints handOne handTwo = do
-		if (isRoyalFlush (handOne !! 0) == 1) || (isRoyalFlush (handTwo !! 0) == 1)then
+		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1) then
 			comparePoints (isRoyalFlush handOne) (isRoyalFlush handTwo)
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints (isStraightFlush handOne) (isStraightFlush handTwo)
