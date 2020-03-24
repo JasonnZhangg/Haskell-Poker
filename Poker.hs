@@ -260,8 +260,18 @@ module Poker where
 	--Hand is high card 	
 		--Returns [hand type, suit of highest card, hand]
 	isHighest lst = do
-		let suit = suitChecker ((sort lst) !! 4)
+		let temp = maximum (modHand lst True)
+		let highest = findHigh lst temp
+		
+		let suit = suitChecker highest
 		10:suit:lst	
+	
+
+	findHigh hand max = do
+		if ((reduceSingleCard (hand !! 0) True )== max) then (hand !! 0)
+		else
+			findHigh (tail hand) max
+		
 	
 	--Find the highest unique value
 		--return winning hand, if all cards equal return -1 
