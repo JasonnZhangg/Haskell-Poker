@@ -14,25 +14,30 @@ module Poker where
 		putStrLn (">>> hand "  ++ (show winner))
 		
 		let stringifyList = if (winner == 1) then 
-								stringifyHand handOne []
+								stringifyHand (sort (zip (modHand handOne False) (handOne))) []
 							else 
-								stringifyHand handTwo []
-		-- for debugging
+								stringifyHand (sort (zip (modHand handTwo False) (handTwo))) []
+								
+				
+
+	-- for debugging
 		print stringifyList
 		-- stringifyList
 
 	stringifyHand [] stringList = stringList
-	stringifyHand (card:hand) stringList = do
+	stringifyHand hand stringList = do
+		let card = snd (head hand) 
 		let num = show (reduceSingleCard card False)
 		let suit = suitChecker card
 		if suit == 1 then 
-			stringifyHand hand (stringList ++ [num ++ "S"])
+			stringifyHand (tail hand) (stringList ++ [num ++ "S"])
 		else if suit == 2 then  
-			stringifyHand hand (stringList ++ [num ++ "H"])
+			stringifyHand (tail hand) (stringList ++ [num ++ "H"])
 		else if suit == 3 then
-			stringifyHand hand (stringList ++ [num ++ "D"])
+			stringifyHand (tail hand) (stringList ++ [num ++ "D"])
 		else
-			stringifyHand hand (stringList ++ [num ++ "C"])
+			stringifyHand (tail hand) (stringList ++ [num ++ "C"])
+
 
 
 	--Compare hands 
