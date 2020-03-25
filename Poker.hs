@@ -1,3 +1,7 @@
+-- Worked in a team of TWO
+-- student Name: Jason Zhang	 student #: 500839581
+-- student Name: Zhi Long Peng   student #: 500901658
+
 module Poker where 
 	import Data.List
 
@@ -5,24 +9,13 @@ module Poker where
 	--Seperate the hands 
 		let handOne = [snd x | x <- (zip [1..10] cards), odd(fst x)]
 		let handTwo = [snd x | x <- (zip [1..10] cards), even(fst x)]
-		
-		-- for debugging
-		--print (stringifyHand handOne [])
-		--print (stringifyHand handTwo [])
 
-		let winner = calculatePoints handOne handTwo
-		putStrLn (">>> hand "  ++ (show winner))
-		
+		let winner = calculatePoints handOne handTwo		
 		let stringifyList = if (winner == 1) then 
 								stringifyHand (sort (zip (modHand handOne False) (handOne))) []
 							else 
 								stringifyHand (sort (zip (modHand handTwo False) (handTwo))) []
-								
-				
-
-	-- for debugging
-		print stringifyList
-		-- stringifyList
+		stringifyList
 
 	stringifyHand [] stringList = stringList
 	stringifyHand hand stringList = do
@@ -37,8 +30,6 @@ module Poker where
 			stringifyHand (tail hand) (stringList ++ [num ++ "D"])
 		else
 			stringifyHand (tail hand) (stringList ++ [num ++ "C"])
-
-
 
 	--Compare hands 
 	comparePoints handO handT = do	
@@ -99,8 +90,8 @@ module Poker where
 		else if (handO !! 0 == 7 && handT !! 0 == 7) then
 			if (handO !! 1) > (handT !! 1) then 1 
 			else 2
+
 		-- 2 pairs
-		-- [8, maxPair, minimum [firstPairValue,secondPairValue]] ++ nonPairCards ++ [suitChecker (maximum highCard)]
 		else if (handO !! 0 == 8 && handT !! 0 == 8) then
 			if pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT)) /= (-1) then 
 				pairTieBreak (drop 1 (take 4 handO)) (drop 1 (take 4 handT))
@@ -109,7 +100,6 @@ module Poker where
 				else 2
 			
 		-- pair
-		-- [9, pairValue] ++ nonPairCards ++ [suitChecker(maximum highCard)]
 		else if (handO !! 0 == 9 && handT !! 0 == 9) then
 			if pairTieBreak  (drop 2 (take 5 handO))  (drop 2 (take 5 handT)) /= (-1) then
 				pairTieBreak (drop 2 (take 5 handO)) (drop 2 (take 5 handT))
@@ -138,36 +128,25 @@ module Poker where
 		--Checks the type of poker hand of handOne and handTwo
 		--If any match, compare the two hands 
 	calculatePoints handOne handTwo = do
-
 		if (isRoyalFlush handOne !! 0 == 1) || (isRoyalFlush handTwo !! 0 == 1) then
 			comparePoints (isRoyalFlush handOne) (isRoyalFlush handTwo)
-			-- (isRoyalFlush handOne) ++ [1000] ++ (isRoyalFlush handTwo)
 		else if (isStraightFlush handOne !! 0 == 2) || (isStraightFlush handTwo !! 0 == 2) then	
 			comparePoints (isStraightFlush handOne) (isStraightFlush handTwo)
-			-- (isStraightFlush handOne) ++ [1000] ++ (isStraightFlush handTwo)
 		else if (isFourKind handOne !! 0 == 3) || (isFourKind handTwo !! 0 == 3) then	
 			comparePoints (isFourKind handOne) (isFourKind handTwo)
-			-- (isFourKind handOne) ++ [1000] ++  (isFourKind handTwo)
 		else if (isFullHouse handOne !! 0 == 4) || (isFullHouse handTwo !! 0 == 4) then
 			comparePoints (isFullHouse handOne) (isFullHouse handTwo)
-			-- (isFullHouse handOne) ++ [1000] ++ (isFullHouse handTwo)
 		else if (isFlush handOne !! 0 == 5) || (isFlush handTwo !! 0 == 5) then
 			comparePoints (isFlush handOne) (isFlush handTwo)
-			-- (isFlush handOne) ++ [1000] ++ (isFlush handTwo)
 		else if (isStraight handOne !! 0 == 6) || (isStraight handTwo !! 0 == 6) then
 			comparePoints (isStraight handOne) (isStraight handTwo)
-			-- (isStraight handOne) ++ [1000] ++ (isStraight handTwo)
 		else if (isThreeKind handOne !! 0 == 7) || (isThreeKind handTwo !! 0 == 7)then
 			comparePoints (isThreeKind handOne) (isThreeKind handTwo)
-			-- (isThreeKind handOne) ++ [1000] ++ (isThreeKind handTwo)
 		else if (isTwoPair handOne !! 0 == 8) || (isTwoPair handTwo !! 0 == 8) then
 			comparePoints (isTwoPair handOne) (isTwoPair handTwo)
-			-- (isTwoPair handOne) ++ [1000] ++ (isTwoPair handTwo)
 		else if (isPair handOne !! 0 == 9) || (isPair handTwo !! 0 == 9) then
 			comparePoints (isPair handOne) (isPair handTwo)
-			-- (isPair handOne) ++ [1000] ++ (isPair handTwo)
 		else comparePoints (isHighest handOne) (isHighest handTwo)
-		-- else (isHighest handOne) ++ [1000] ++ (isHighest handTwo)
 
 	--Checks if it has a royal flush
 		--Checks the suit, then card values
@@ -234,57 +213,45 @@ module Poker where
 		else [11]
 		
 	isTwoPair hand = do	
-		--find the 2 pairs 
 		let firstPairValue = findPair hand (-1)
 		let secondPairValue = findPair hand firstPairValue
-		--find the biggest pair
 		let maxPair = maximum [firstPairValue, secondPairValue]
-		--get the highest suit card of the biggest pair
 		let highCard = filter (\x -> (reduceSingleCard x True) == maxPair) hand
-		--get all the non pair cards
 		let nonPairCards = filter(\x -> (reduceSingleCard x True) /= firstPairValue && (reduceSingleCard x True) /= secondPairValue) hand
 		if (length (nub (modHand hand False)) == 3) then
-			--[score, biggest pair, smallest pair, suit of the biggest pair] ++ [list of non pair cards]
 			[8, maxPair, minimum [firstPairValue, secondPairValue]] ++ (reverse (sort (modHand nonPairCards True))) ++  [suitChecker (maximum highCard)]
 		else
 			[11]
 		
 	--Check if hand is pair
 	isPair hand = do	
-		--find pair	
 		let pairValue = findPair hand (-1)
-		--find the biggest value of the pair
 		let highCard = filter (\x -> (reduceSingleCard x True) == pairValue) hand
-		--list of all non pair cards
 		let nonPairCards = filter(\x -> (reduceSingleCard x True) /= pairValue) hand
 		if (length (nub (modHand hand True)) == 4) then	
-			--[ score, biggest pair value, suit of the pair] ++ [list of non pair cards]
 			[9, pairValue] ++ (reverse (sort (modHand nonPairCards True))) ++ [suitChecker (maximum highCard)]
 		else
 			[11]
+
 	--Hand is high card 	
 		--Returns [hand type, suit of highest card, hand]
 	isHighest lst = do
 		let temp = maximum (modHand lst True)
 		let highest = findHigh lst temp
-		
 		let suit = suitChecker highest
 		10:suit:lst	
 	
-
 	findHigh hand max = do
 		if ((reduceSingleCard (hand !! 0) True )== max) then (hand !! 0)
 		else
 			findHigh (tail hand) max
 		
-	
 	--Find the highest unique value
 		--return winning hand, if all cards equal return -1 
 	compareHighestValue [] [] _ = -1 
 	compareHighestValue handOne handTwo isHighAce = do
 		let one = sort (modHand handOne isHighAce)
 		let two = sort (modHand handTwo isHighAce)
-		
 		if (one !! 0 == two !! 0) then
 			compareHighestValue (tail one) (tail two) isHighAce
 		else 
