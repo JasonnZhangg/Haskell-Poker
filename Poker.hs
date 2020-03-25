@@ -7,8 +7,8 @@ module Poker where
 
 	deal cards = do
 	--Seperate the hands 
-		let handOne = [snd x | x <- (zip [1..10] cards), odd(fst x)]
-		let handTwo = [snd x | x <- (zip [1..10] cards), even(fst x)]
+		let handOne = sort [snd x | x <- (zip [1..10] cards), odd(fst x)]
+		let handTwo = sort [snd x | x <- (zip [1..10] cards), even(fst x)]
 
 		let winner = calculatePoints handOne handTwo		
 		let stringifyList = if (winner == 1) then 
@@ -250,8 +250,8 @@ module Poker where
 		--return winning hand, if all cards equal return -1 
 	compareHighestValue [] [] _ = -1 
 	compareHighestValue handOne handTwo isHighAce = do
-		let one = sort (modHand handOne isHighAce)
-		let two = sort (modHand handTwo isHighAce)
+		let one = reverse (sort (modHand handOne isHighAce))
+		let two = reverse (sort (modHand handTwo isHighAce))
 		if (one !! 0 == two !! 0) then
 			compareHighestValue (tail one) (tail two) isHighAce
 		else 
